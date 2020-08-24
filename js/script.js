@@ -11,6 +11,7 @@ class Memorama{
         this.imagenesCorrectas = []
         //uso arreglos para poder manipular la informacion
         this.agregadorTarjetas = []
+        this.numeroIntentos = 0
 
         //* registros los elementos del HTML; con un signo de $
         this.$contedorGeneral  = document.querySelector('.contenedor-general')
@@ -18,6 +19,11 @@ class Memorama{
         this.$pantallaBloqueada = document.querySelector('.pantalla-bloqueada')
         this.$mensaje = document.querySelector('h2.mensaje')//.mensaje es la classe de la etiqueta h2
         
+        //* Llevar el conteo de todos los errores(mensaje)
+        this.$errorContenedor = document.createElement('div')
+        this.$nivelDificultad = document.createElement('div')
+
+
         //llamado a los eventos
         this.eventos()
     }
@@ -25,9 +31,50 @@ class Memorama{
     //se encarga de cargar la pantalla este metodo 
     eventos(){
         addEventListener('DOMContentLoaded', () =>{
+            this.seleccionDificultad()
             this.cargaPantalla() // llamo al metodo
+
+            //evento para el bloqueo del click derecho
+            // window.addEventListener('contextmenu', (e) =>{
+            //     e.preventDefault()
+            // }, false)//para tenga efecto en esta parte (false)
         })
     }
+
+    //* Metodo para la seleccion de dificultad
+    seleccionDificultad(){
+        const mensaje = prompt('Seleccione el nivel de difilcultad: facil, intermedio o dificil, si no seleccionas ningun nivel  por defecto el nivel sera intermedio')
+
+        if(!mensaje){
+            this.numeroIntentos = 5
+            this.nivelDificultad = 'Intermedio'
+        }else{
+            //cuando el usuario si seleccione el nivel
+            if(mensaje.toLowerCase() === 'facil' || mensaje.toLowerCase() === 'fácil'){
+                this.numeroIntentos = 7
+                this.nivelDificultad = 'Fácil'
+            }else if(mensaje.toLowerCase() === 'intermedio'){
+                this.numeroIntentos = 5
+                this.nivelDificultad = 'Intermedio'
+            }else if(mensaje.toLowerCase() === 'dificil' || mensaje.toLowerCase() === 'difícil'){
+                this.numeroIntentos = 3
+                this.nivelDificultad = 'Difícil'
+            }else{//si pone otro nivel de dificultad se pone intermedio
+                this.numeroIntentos = 5
+                this.nivelDificultad = 'Intermedio'
+            }
+        }
+        
+        //llamo al metodo; para que pueda tener el numero de errores o el nivel de dificultad
+        this.contenedorError()
+
+        this.mensajeIntentos()
+        //console.log(this.numeroIntentos, this.nivelDificultad)
+        
+    }
+
+
+
 
     // metodo para mostrar las tarjetas en la pantalla
     //* lo hago con las funciones async/await para no ocurrir las promesas con .then()
@@ -64,6 +111,7 @@ class Memorama{
         })
         this.$contenedorTarjetas.innerHTML = html//le asigno el html que cree 
         this.comienzaJuego()//llamo al metodo porque cuando ya esten cargadas las tarjetas puedo tener acceso al queryslectall
+    
     }
 
     //* metodo para detectar click en la tarjeta
@@ -72,7 +120,14 @@ class Memorama{
         tarjetas.forEach(tarjeta => {
             //para que se muestre el lado inverso y se comience a comparar los pares
             tarjeta.addEventListener('click', (e) =>{
-                this.clickTarjeta(e)//le mando el evento (e) click al metodo Click tarjeta
+                // console.log(e.target.classList)
+
+                //mi DIV no contenga mi aclase acertada osea el if debe evaluar un false
+                //! daba problemas que mostraba la lista DIV
+                if(!e.target.classList.contains('acertada') && !e.target.classList.contains('tarjeta-img')){
+                    
+                    this.clickTarjeta(e)//le mando el evento (e) click al metodo Click tarjeta
+                }
             })
         })
     }
@@ -150,6 +205,8 @@ class Memorama{
                 //para darle de reverso a la tarjeta este metodo
                 this.reversoTarjetas(this.agregadorTarjetas)//este agregadortarjetas tiene el DIV de cada tarjetas
                 this.errores++
+                this.incrementadorError()//llamo al metodo cuando nos equivoquemos de tarjetas
+                this.derrotaJuego()// y este evento lo escuchara para actualizar
             }
 
             //* libero los arreglos para eliminar los elementos existentes
@@ -175,6 +232,45 @@ class Memorama{
         }
 
     }
+
+    //* metodo derrota juego
+    derrotaJuego(){
+        if(this.errores === this.numeroIntentos){//comparo los intentos 
+
+            setTimeout(() =>{
+                //accedo al comportamiento para mostrar la pantalla bloqueada
+                this.$pantallaBloqueada.style.display = 'block'
+            },1000)
+            
+            //para una vez se  pierda el juego, la pantalla se vuelva a cargar
+            setTimeout(() =>{
+                location.reload()
+            },4000)
+
+        }
+    }
+
+
+    incrementadorError(){
+
+        //este contenedor tiene el numero de errores conforme se equivoque en el juego
+        this.$errorContenedor.innerText = `Errores: ${this.errores}`
+    }
+
+    
+    contenedorError(){
+        this.$errorContenedor.classList.add('error')//añado la clase error de CSS
+        this.incrementadorError()
+        this.$contedorGeneral.appendChild(this.$errorContenedor)//añado el errorcontenedor(fijo los errores)
+    }
+    
+    mensajeIntentos(){
+        this.$nivelDificultad.classList.add('nivel-dificultad')//CSS
+        this.$nivelDificultad.innerHTML = `Nivel de difilcultad: ${this.nivelDificultad}`//añado el nivel
+        this.$contedorGeneral.appendChild(this.$nivelDificultad)//lo meto al contenedor 
+    }
+
+
 }
 
 
