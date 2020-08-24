@@ -52,6 +52,7 @@ class Memorama{
         //console.log(respuesta.json())
 
         //* mostrando las cartas en pantalla
+        // y tambien para saber si ya no queda ninguna tarjeta
         this.numeroTarjetas = this.totalTarjetas.length //me permite saber cuantas tarjetas estoy contando 
 
         let html =  ''
@@ -78,6 +79,10 @@ class Memorama{
 
     //* metodo, recibe el evento de comienzajuego
     clickTarjeta(e){
+
+        //llamo el metodo 
+        this.efectoVoltearTarjeta(e)
+
         //para saber cual imagen le di click 
         let sourceImage = e.target.childNodes[1].attributes[1].value //para saber el src que imagen le dimos click(nombre de la imagen)
         
@@ -93,14 +98,84 @@ class Memorama{
 
         console.log(sourceImage)//miro el nombre de la img
         //console.log(e)//imprimo el click
+
+        //llamo al metodo
+        this.comparadorTarjetas()
+    }
+
+    //para poder voltear la tarjeta 
+    efectoVoltearTarjeta(e){
+        e.target.style.backgroundImage = 'none'//le quite el color 
+        e.target.style.backgroundColor = 'white'
+        e.target.childNodes[1].style.display = 'block'//la pocision 1, le agrego un estilo
+    }
+
+    
+
+    fijarParAcertado(arrTarjetasAcertadas){
+        //itera el array recibido, de forma individual
+        //y las coloco con una clase de css que las fija
+        arrTarjetasAcertadas.forEach(tarjeta => {
+            tarjeta.classList.add('acertada')//una clase de CSS 
+            
+            //llamo al arreglo y las agrego la tarjeta que esta correcta
+            this.imagenesCorrectas.push(tarjeta)//la guardo en este arreglo
+
+            this.victoriaJuego() //una vez que alla ganado el juego
+        })
+    }
+
+    //este metodo me ayuda en darle vuelta a la tarjeta cuando le equivoca de tarjeta
+    reversoTarjetas(arrTarjetasNoAcertadas){
+        arrTarjetasNoAcertadas.forEach(tarjeta =>{
+            setTimeout(() =>{
+
+                //de vuelve la propiedad de la tarjeta asu estado normal
+                tarjeta.style.backgroundImage = 'url(../img/cover.jpg)'//dirrecion de la imagen
+                tarjeta.childNodes[1].style.display = 'none'//en su nodo hijo pocision 1 regrese a su estado normal
+            },1000)//tarjetas que se regrese despues de 1 segundo(cuando se equivoca de tarjeta)
+        })
     }
 
     //* metodo que me ayuda a comparar las tarjetas
     comparadorTarjetas(){
 
+        // compara si el numero de elementos es igual a 2 tarjetas
+        if(this.verificadorTarjetas.length == 2){
+            
+            //compara el par de tarjetas en el arreglo
+            if(this.verificadorTarjetas[0] === this.verificadorTarjetas[1]){
+                this.fijarParAcertado(this.agregadorTarjetas)//si co incide las tarjetas; mando el arreglo al metodo
+            }else{
+                //para darle de reverso a la tarjeta este metodo
+                this.reversoTarjetas(this.agregadorTarjetas)//este agregadortarjetas tiene el DIV de cada tarjetas
+                this.errores++
+            }
+
+            //* libero los arreglos para eliminar los elementos existentes
+            this.verificadorTarjetas.splice(0)//cero porque libero los elementos existentes
+            this.agregadorTarjetas.splice(0)
+        }   
     }
 
+    //* defino el metodo para verificar cuando se gane el juego
+    victoriaJuego(){
 
+        //para saber que ya no queda ninguna tarjeta que voltear
+        if(this.imagenesCorrectas.length === this.numeroTarjetas){
+            setTimeout(() =>{
+                this.$pantallaBloqueada.style.display = 'block'
+                this.$mensaje.innerText = '!Felicidades! Has ganado el juego'
+            },1000)
+
+            //cuando el jugador gane, la pantalla  vuelvan a su estado original
+            setTimeout(() =>{
+                location.reload()
+            },5000)
+        }
+
+    }
 }
+
 
 new Memorama()
