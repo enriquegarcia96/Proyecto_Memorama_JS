@@ -35,9 +35,9 @@ class Memorama{
             this.cargaPantalla() // llamo al metodo
 
             //evento para el bloqueo del click derecho
-            // window.addEventListener('contextmenu', (e) =>{
-            //     e.preventDefault()
-            // }, false)//para tenga efecto en esta parte (false)
+            window.addEventListener('contextmenu', (e) =>{
+                e.preventDefault()
+            }, false)//para tenga efecto en esta parte (false)
         })
     }
 
