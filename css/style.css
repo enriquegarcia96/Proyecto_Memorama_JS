@@ -83,7 +83,7 @@ div.pantalla-bloqueada {
 }
 
 h2.mensaje {
-     font-size: 5rem;
+     font-size: 6rem;
      color: white;
      z-index: 10;
      text-align: center;
@@ -99,6 +99,6 @@ div.error {
 div.nivel-dificultad {
      position: absolute;
      bottom: 5rem;
-     font-size: 3rem;
-     right: 21rem;
+     font-size: 3.5rem;
+     right: 30rem;
 }
